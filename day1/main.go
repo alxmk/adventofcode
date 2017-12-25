@@ -45,5 +45,31 @@ func main() {
 		sum += value
 	}
 
-	fmt.Println("The answer is", sum)
+	fmt.Println("Answer to part 1 is", sum)
+
+	sum = 0
+
+	// Check through digits and add them up if they match
+	for i, c := range digits {
+		if digits[i] == digits[getOppositeIndex(i, len(digits))] {
+			value, err := strconv.Atoi(string(c))
+			if err != nil {
+				log.Fatalf("Couldn't convert %v to int", c)
+			}
+
+			sum += value
+		}
+	}
+
+	fmt.Println("Answer to part 2 is", sum)
+}
+
+func getOppositeIndex(i, length int) int {
+	index := i + length/2
+
+	if index >= length {
+		index = index - length
+	}
+
+	return index
 }
