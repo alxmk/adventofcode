@@ -18,6 +18,7 @@ func main() {
 	rows := strings.Split(string(input), "\n")
 
 	var checksum int
+	var divsum int
 
 	for _, r := range rows {
 		cells := strings.Fields(r)
@@ -25,7 +26,7 @@ func main() {
 		var max int
 		min := math.MaxInt16
 
-		for _, c := range cells {
+		for i, c := range cells {
 			value, err := strconv.Atoi(c)
 			if err != nil {
 				log.Fatalf("Couldn't parse cell %s as int", c)
@@ -38,10 +39,27 @@ func main() {
 			if value > max {
 				max = value
 			}
+
+			for j, cell := range cells {
+				if i == j {
+					continue
+				}
+
+				value2, err := strconv.Atoi(cell)
+				if err != nil {
+					log.Fatalf("Couldn't parse cell %s as int", cell)
+				}
+
+				if math.Mod(float64(value), float64(value2)) == 0 {
+					divsum += value / value2
+					break
+				}
+			}
 		}
 
 		checksum += max - min
 	}
 
-	log.Println("Answer is", checksum)
+	log.Println("Part 1 answer is", checksum)
+	log.Println("Part 2 answer is", divsum)
 }
