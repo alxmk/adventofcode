@@ -21,12 +21,6 @@ func main() {
 
 	moves := strings.Split(string(input), ",")
 
-	// g := grid{
-	// 	tiles: []*tile{
-	// 		newTile(),
-	// 	},
-	// }
-
 	moveCount := make(map[string]int)
 
 	for _, m := range moves {
@@ -54,20 +48,45 @@ func main() {
 		log.Println(dir, count)
 	}
 
-	log.Println(xCount, yCount)
+	log.Println("Part one answer is", calculateDistance(xCount, yCount))
 
+	xCount = 0
+	yCount = 0
+
+	var maxDistance int
+
+	for _, dir := range moves {
+		if strings.Contains(dir, "n") {
+			yCount++
+		}
+		if strings.Contains(dir, "s") {
+			yCount--
+		}
+		if strings.Contains(dir, "e") {
+			xCount++
+		}
+		if strings.Contains(dir, "w") {
+			xCount--
+		}
+
+		currentDistance := calculateDistance(xCount, yCount)
+
+		if currentDistance > maxDistance {
+			maxDistance = currentDistance
+		}
+	}
+
+	log.Println("Part two answer is", maxDistance)
+}
+
+func calculateDistance(xCount, yCount int) int {
 	xAbs := math.Abs(float64(xCount))
 	yAbs := math.Abs(float64(yCount))
 
-	var totalMoves float64
-
 	if xAbs > yAbs {
-		totalMoves = xAbs
-	} else {
-		totalMoves = yAbs
+		return int(xAbs)
 	}
-
-	log.Println("The answer is", totalMoves)
+	return int(yAbs)
 }
 
 // reduce cancels out moves in opposite directions to each other
