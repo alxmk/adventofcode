@@ -27,23 +27,26 @@ func main() {
 		banks = append(banks, value)
 	}
 
-	seen := make(map[string]struct{})
+	seen := make(map[string]int)
 
 	var cycles int
+	var loopSize int
 
 	for {
 		stringRepresentation := fmt.Sprint(banks)
-		if _, ok := seen[stringRepresentation]; ok {
+		if c, ok := seen[stringRepresentation]; ok {
+			loopSize = cycles - c
 			break
 		}
 
-		seen[stringRepresentation] = struct{}{}
+		seen[stringRepresentation] = cycles
 
 		banks = redistribute(banks)
 		cycles++
 	}
 
-	log.Println("The answer is", cycles)
+	log.Println("Part 1 answer is", cycles)
+	log.Println("Part 2 answer is", loopSize)
 }
 
 func redistribute(banks []int) []int {
