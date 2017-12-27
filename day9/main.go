@@ -8,6 +8,8 @@ import (
 	"text/scanner"
 )
 
+var garbageCount int
+
 func main() {
 	input, err := ioutil.ReadFile("input.txt")
 	if err != nil {
@@ -24,7 +26,8 @@ func main() {
 
 	group := parse(scan, 1)
 
-	log.Println("The answer is", group.Score())
+	log.Println("Part one answer is", group.Score())
+	log.Println("Part two answer is", garbageCount)
 }
 
 func parse(scan *scanner.Scanner, score int) *group {
@@ -54,7 +57,10 @@ func parse(scan *scanner.Scanner, score int) *group {
 		case c == scanner.EOF:
 			return group
 		default:
-			// Just continue
+			// If it's a garbage character increase the count
+			if garbage {
+				garbageCount++
+			}
 		}
 	}
 }
