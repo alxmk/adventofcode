@@ -26,21 +26,34 @@ func main() {
 		maze = append(maze, value)
 	}
 
+	log.Println("Part 1 answer is", process(maze, 1))
+
+	log.Println("Part 2 answer is", process(maze, 2))
+}
+
+func process(maze []int, part int) int {
 	index := 0
 	numInstructions := 0
+
+	mymaze := make([]int, len(maze))
+	copy(mymaze, maze)
 
 	for {
 		numInstructions++
 
-		current := maze[index]
-		maze[index]++
+		current := mymaze[index]
+		if current >= 3 && part == 2 {
+			mymaze[index]--
+		} else {
+			mymaze[index]++
+		}
 
 		index += current
 
-		if index < 0 || index >= len(maze) {
+		if index < 0 || index >= len(mymaze) {
 			break
 		}
 	}
 
-	log.Println("The answer is", numInstructions)
+	return numInstructions
 }
