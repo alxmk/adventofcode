@@ -39,20 +39,39 @@ func main() {
 		}
 	}
 
-	fullLayers := make(map[int]int)
-
-	for i := 0; i <= maxDepth; i++ {
-		fullLayers[i] = layers[i]
-	}
-
 	score := 0
 
-	for picosecond := 0; picosecond <= maxDepth; picosecond++ {
+	for depth, scanrange := range layers {
 		// If there's no firewall at this level just continue
-		if math.Mod(float64(picosecond), float64(2*fullLayers[picosecond]-2)) == 0 {
-			score += picosecond * fullLayers[picosecond]
+		if math.Mod(float64(depth), float64(2*scanrange-2)) == 0 {
+			score += depth * scanrange
 		}
 	}
 
-	log.Println("The answer is", score)
+	log.Println("Part one answer is", score)
+
+	delay := 0
+	deepest := 0
+
+nextDelay:
+	for {
+		delay++
+
+		for depth, scanrange := range layers {
+			if depth > deepest {
+				deepest = depth
+			}
+
+			// If we ever hit a scanner try next delay value
+			if math.Mod(float64(depth+delay), float64(2*scanrange-2)) == 0 {
+				log.Println("Delay", delay, "hit scanner at depth", depth, "max depth", deepest)
+				continue nextDelay
+			}
+		}
+
+		// Success!
+		break
+	}
+
+	log.Println("Part two answer is", delay)
 }
