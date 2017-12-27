@@ -15,11 +15,13 @@ func main() {
 	lines := strings.Split(strings.Replace(string(input), ",", "", -1), "\n")
 
 	srcDest := make(map[string][]string)
+	allNodes := []string{}
 
 	for _, l := range lines {
 		parts := strings.Fields(l)
 
 		srcDest[parts[0]] = parts[2:]
+		allNodes = append(allNodes, parts[0])
 	}
 
 	// Start at node 0
@@ -28,7 +30,23 @@ func main() {
 
 	traverse(srcDest, visited, start)
 
-	log.Println("The answer is", len(visited))
+	log.Println("Part one answer is", len(visited))
+
+	index := 0
+	numGroups := 1
+
+	log.Println("Total nodes", len(allNodes))
+
+	// Find the next unvisited node
+	for i := index; i < len(allNodes); i++ {
+		if _, ok := visited[allNodes[i]]; !ok {
+			traverse(srcDest, visited, allNodes[i])
+			numGroups++
+		}
+		index = i
+	}
+
+	log.Println("Part two answer is", numGroups)
 }
 
 func traverse(srcDest map[string][]string, visited map[string]struct{}, current string) {
