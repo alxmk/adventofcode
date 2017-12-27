@@ -18,6 +18,8 @@ func main() {
 
 	registers := make(map[string]int)
 
+	var maxAtAnyTime int
+
 	for _, i := range instructions {
 		register, increment, check, err := parse(i)
 		if err != nil {
@@ -33,6 +35,10 @@ func main() {
 		} else {
 			registers[register] = increment
 		}
+
+		if registers[register] > maxAtAnyTime {
+			maxAtAnyTime = registers[register]
+		}
 	}
 
 	var max int
@@ -43,7 +49,8 @@ func main() {
 		}
 	}
 
-	log.Println("The answer is", max)
+	log.Println("Part one answer is", max)
+	log.Println("Part two answer is", maxAtAnyTime)
 }
 
 func parse(instruction string) (string, int, *check, error) {
