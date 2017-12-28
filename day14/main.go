@@ -2,11 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
 	"github.ibm.com/alexmk/adventofcode/day10/knot"
 )
+
+var visitCount int
 
 func main() {
 	input := "ugkiagan"
@@ -20,6 +23,10 @@ func main() {
 		hash := knot.KnotHash(key)
 
 		binary := parseToBinary(hash)
+
+		if len(binary) != 128 {
+			log.Fatalln("Binary was not 128 bits", binary, len(binary))
+		}
 
 		usedCount += strings.Count(binary, "1")
 
@@ -36,34 +43,57 @@ func main() {
 
 	numRegions := 0
 
-	for row, data := range regions {
+	// Initialise everything
+	for row := range regions {
 		visited[row] = make(map[int]struct{})
-		for index, value := range data {
-			// If it's a zero just add it to the visited and carry on
-			if !value {
-				visited[row][index] = struct{}{}
+	}
+
+	for row := 0; row < len(regions); row++ {
+		log.Println("Starting row", row, "regions", numRegions, "visit count", visitCount)
+		for index := 0; index < len(regions[row]); index++ {
+			// Skip zeroes and cells we've already visited
+			if _, ok := visited[row][index]; !regions[row][index] || ok {
 				continue
 			}
-			if _, ok := visited[row][index]; !ok {
-				// If we've not been here before it's a new region
-				numRegions++
-			}
 
-			// Check to the right and below, unless we're at the far right/bottom
-			if index != len(data) {
-				// If it's a 1 then visit it
-				if _, value := data[index+1]; value {
-					visited[row][index+1] = struct{}{}
-				}
-			}
-			if row != len(regions) {
-				// If it's a 1 then visit it
-				if _, value := regions[row+1][index]; value {
-					visited[row+1][index] = struct{}{}
-				}
-			}
+			// If we get here we're at a new region
+			numRegions++
+
+			// Mark as visited
+			visited[row][index] = struct{}{}
+			visitCount++
+
+			// Explore up, down, left, right and mark as visited if appropriate
+			regions, visited = explore(row-1, index, regions, visited)
+			regions, visited = explore(row+1, index, regions, visited)
+			regions, visited = explore(row, index-1, regions, visited)
+			regions, visited = explore(row, index+1, regions, visited)
 		}
 	}
+
+	log.Println("Part two answer is", numRegions)
+}
+
+func explore(row, index int, regions map[int]map[int]bool, visited map[int]map[int]struct{}) (map[int]map[int]bool, map[int]map[int]struct{}) {
+	// If we have invalid coordinates drop out
+	if row < 0 || row >= len(regions) || index < 0 || index >= len(regions[row]) {
+		return regions, visited
+	}
+
+	// If we already visited or it's a 0 drop out
+	if _, ok := visited[row][index]; !regions[row][index] || ok {
+		return regions, visited
+	}
+
+	// If we got here we haven't visited and it's a 1, so mark as visited
+	visited[row][index] = struct{}{}
+	visitCount++
+
+	// Explore up, down, left, right and mark as visited if appropriate
+	regions, visited = explore(row-1, index, regions, visited)
+	regions, visited = explore(row+1, index, regions, visited)
+	regions, visited = explore(row, index-1, regions, visited)
+	return explore(row, index+1, regions, visited)
 }
 
 func parseToBinary(hash string) string {
@@ -71,7 +101,14 @@ func parseToBinary(hash string) string {
 	for i := 0; i < len(hash); i += 2 {
 		chunk := hash[i : i+2]
 		value, _ := strconv.ParseInt(chunk, 16, 32)
-		output += strconv.FormatInt(value, 2)
+		bin := strconv.FormatInt(value, 2)
+		for {
+			if len(bin) == 8 {
+				break
+			}
+			bin = "0" + bin
+		}
+		output += bin
 	}
 
 	return output
