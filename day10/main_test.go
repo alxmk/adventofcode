@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.ibm.com/alexmk/adventofcode/day10/knot"
 )
 
 func TestKnotHash(t *testing.T) {
@@ -15,6 +16,6 @@ func TestKnotHash(t *testing.T) {
 	}
 
 	for input, output := range tests {
-		require.Equal(t, output, KnotHash(input))
+		require.Equal(t, output, knot.KnotHash(input))
 	}
 }
