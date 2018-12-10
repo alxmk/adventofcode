@@ -28,11 +28,11 @@ func main() {
 
 	reqs2 := copyMap(reqs)
 
-	log.Printf("%#v", reqs)
+	// log.Printf("%#v", reqs)
 
 	var complete []string
 	for {
-		log.Println(strings.Join(complete, ""))
+		// log.Println(strings.Join(complete, ""))
 		next, ok := reqs.Next(complete)
 		if !ok {
 			break
@@ -77,7 +77,7 @@ func main() {
 				allDone = false
 			}
 		}
-		log.Printf("%d '%s' '%s' '%s' '%s' '%s' '%s'", t, workers[0].currentTask, workers[1].currentTask, workers[2].currentTask, workers[3].currentTask, workers[4].currentTask, strings.Join(complete2, ""))
+		// log.Printf("%d '%s' '%s' '%s' '%s' '%s' '%s'", t, workers[0].currentTask, workers[1].currentTask, workers[2].currentTask, workers[3].currentTask, workers[4].currentTask, strings.Join(complete2, ""))
 		if allDone {
 			break
 		}
