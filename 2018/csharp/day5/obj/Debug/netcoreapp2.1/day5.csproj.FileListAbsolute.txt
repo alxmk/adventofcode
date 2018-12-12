@@ -1,0 +1,11 @@
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.csprojAssemblyReference.cache
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.csproj.CoreCompileInputs.cache
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.AssemblyInfoInputs.cache
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.AssemblyInfo.cs
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/bin/Debug/netcoreapp2.1/day5.deps.json
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/bin/Debug/netcoreapp2.1/day5.runtimeconfig.json
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/bin/Debug/netcoreapp2.1/day5.runtimeconfig.dev.json
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/bin/Debug/netcoreapp2.1/day5.dll
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/bin/Debug/netcoreapp2.1/day5.pdb
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.dll
+/home/alex/Workspaces/go/src/github.ibm.com/alexmk/adventofcode/2018/csharp/day5/obj/Debug/netcoreapp2.1/day5.pdb
