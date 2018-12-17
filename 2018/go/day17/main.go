@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	xmax, xmin, ymax int
+	xmax, xmin, ymax, ymin int
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	}
 
 	var clay []coord
-	xmin = math.MaxInt32
+	xmin, ymin = math.MaxInt32, math.MaxInt32
 
 	log.Println("Building grid")
 
@@ -41,10 +41,16 @@ func main() {
 				if i > ymax {
 					ymax = i
 				}
+				if i < ymin {
+					ymin = i
+				}
 			}
 		case "y":
 			if a > ymax {
 				ymax = a
+			}
+			if a < ymin {
+				ymin = a
 			}
 			for i := b; i <= c; i++ {
 				if i > xmax {
@@ -93,7 +99,7 @@ func main() {
 
 	fmt.Println(grid.String(source))
 
-	fmt.Println(grid.CountWet())
+	fmt.Println(grid.CountWet() - ymin + 1)
 
 	fmt.Println(grid.CountWater())
 }
