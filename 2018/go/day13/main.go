@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	data, err := ioutil.ReadFile("input.txt")
+	data, err := ioutil.ReadFile("amf.txt")
 	if err != nil {
 		log.Fatalln("Failed to read input", err)
 	}
@@ -57,6 +57,8 @@ func main() {
 
 	// track.Print(cars)
 
+	// var t int
+
 	for {
 		// track.Print(cars)
 		var toremove []int
@@ -72,15 +74,20 @@ func main() {
 				}
 			}
 		}
+		// for i, car := range cars {
+		// 	fmt.Print(t, i, car.x, car.y, "\n")
+		// }
 		sort.Sort(sort.Reverse(sort.IntSlice(toremove)))
 		for _, i := range toremove {
 			cars = append(cars[:i], cars[i+1:]...)
 		}
 		if len(cars) == 1 {
+			// fmt.Println(t)
 			fmt.Println("Last car", cars[0].x, cars[0].y)
 			break
 		}
 		sort.Sort(byXY(cars))
+		// t++
 	}
 }
 

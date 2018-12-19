@@ -94,6 +94,7 @@ func (w world) Next() world {
 			if y == 0 {
 				newWorld[x] = make([]tile, len(w[0]))
 			}
+
 			newWorld[x][y] = w.NextTile(x, y)
 		}
 	}
@@ -164,7 +165,7 @@ func (w world) Score() int {
 type tile int
 
 const (
-	open tile = iota
-	trees
-	lumberyard
+	open       tile = 1
+	trees      tile = 10
+	lumberyard tile = 100
 )
