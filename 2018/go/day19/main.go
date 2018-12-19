@@ -52,26 +52,34 @@ func main() {
 
 	fmt.Println("Part one:", reg[0])
 
-	r2 := make(registers, 6)
-	r2[0] = 1
+	// r2 := make(registers, 6)
+	// r2[0] = 1
 
-	for {
-		ip := r2[ipreg]
-		if cmd, ok := programme[ip]; ok {
-			after := cmd.Do(r2)
-			fmt.Printf("ip=%d %s %s %s\n", ip, r2.String(), cmd.String(), after.String())
-			if r2[0] != after[0] && ip == 7 {
-				break
-			}
-			r2 = after
-		} else {
-			break
+	// for {
+	// 	ip := r2[ipreg]
+	// 	if cmd, ok := programme[ip]; ok {
+	// 		after := cmd.Do(r2)
+	// 		if r2[0] != after[0] {
+	// 			fmt.Printf("ip=%d %s %s %s\n", ip, r2.String(), cmd.String(), after.String())
+	// 		}
+	// 		r2 = after
+	// 	} else {
+	// 		break
+	// 	}
+
+	// 	r2[ipreg]++
+	// }
+
+	target := 10551340
+	var part2 int
+
+	for i := 1; i <= 10551340; i++ {
+		if target%i == 0 {
+			part2 += i
 		}
-
-		r2[ipreg]++
 	}
 
-	fmt.Println("Part two:", r2[0])
+	fmt.Println("Part two:", part2)
 }
 
 type registers []int
