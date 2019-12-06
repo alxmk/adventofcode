@@ -60,7 +60,7 @@ func main() {
 	// var t int
 
 	for {
-		// track.Print(cars)
+		track.Print(cars)
 		var toremove []int
 		for i, car := range cars {
 			car.Tick(track)
