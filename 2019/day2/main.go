@@ -24,7 +24,7 @@ func main() {
 	prog[1] = 12
 	prog[2] = 2
 
-	if err := prog.Run(nil, nil); err != nil {
+	if err := prog.Run(nil, make(chan int64)); err != nil {
 		log.Println("Failed to run part one:", err)
 	}
 
@@ -38,14 +38,14 @@ func main() {
 	log.Println("Part two:", (100*noun)+verb)
 }
 
-func findNV(prog intcode.Programme, target int) (int, int, error) {
-	var noun, verb int
+func findNV(prog intcode.Programme, target int64) (int64, int64, error) {
+	var noun, verb int64
 	for ; noun < 100; noun++ {
 		for verb = 0; verb < 100; verb++ {
 			p := prog.Copy()
 			p[1] = noun
 			p[2] = verb
-			if err := p.Run(nil, nil); err != nil {
+			if err := p.Run(nil, make(chan int64)); err != nil {
 				return -1, -1, fmt.Errorf("failed to run programme with noun %d verb %d: %v", noun, verb, err)
 			}
 

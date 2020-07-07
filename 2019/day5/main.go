@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	var input int
-	flag.IntVar(&input, "input", -1, "Input value to programme")
+	var input int64
+	flag.Int64Var(&input, "input", -1, "Input value to programme")
 	flag.Parse()
 
 	data, err := ioutil.ReadFile("input.txt")
@@ -23,7 +23,7 @@ func main() {
 		log.Fatalln("Bad input:", err)
 	}
 
-	in, out := make(chan int), make(chan int)
+	in, out := make(chan int64), make(chan int64)
 
 	go func() {
 		in <- input
@@ -34,7 +34,6 @@ func main() {
 		if err := p.Run(in, out); err != nil {
 			log.Fatalln("Error running programme:", err)
 		}
-		close(out)
 	}()
 
 	for output := range out {

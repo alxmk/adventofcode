@@ -17,7 +17,7 @@ func TestParseWire(t *testing.T) {
 			name:  "Ex1",
 			input: "R8,U5,L5,D3",
 			expect: wire{
-				coordinate{0, 0}: 0,
+				// coordinate{0, 0}: 0,
 				coordinate{1, 0}: 1,
 				coordinate{2, 0}: 2,
 				coordinate{3, 0}: 3,
@@ -45,7 +45,7 @@ func TestParseWire(t *testing.T) {
 			name:  "Ex2",
 			input: "U7,R6,D4,L4",
 			expect: wire{
-				coordinate{0, 0}: 0,
+				// coordinate{0, 0}: 0,
 				coordinate{0, 1}: 1,
 				coordinate{0, 2}: 2,
 				coordinate{0, 3}: 3,
@@ -88,48 +88,48 @@ func TestClosestIntersection(t *testing.T) {
 		distFunc       func(coordinate, int, int) int
 		expectDistance int
 	}{
-		// {
-		// 	name:           "Ex1 Manhattan",
-		// 	inputA:         "R8,U5,L5,D3",
-		// 	inputB:         "U7,R6,D4,L4",
-		// 	distFunc:       manhattan(),
-		// 	expectDistance: 6,
-		// },
-		// {
-		// 	name:           "Ex1 Steps",
-		// 	inputA:         "R8,U5,L5,D3",
-		// 	inputB:         "U7,R6,D4,L4",
-		// 	distFunc:       steps(),
-		// 	expectDistance: 30,
-		// },
-		// {
-		// 	name:           "Ex2 Manhattan",
-		// 	inputA:         "R75,D30,R83,U83,L12,D49,R71,U7,L72",
-		// 	inputB:         "U62,R66,U55,R34,D71,R55,D58,R83",
-		// 	distFunc:       manhattan(),
-		// 	expectDistance: 159,
-		// },
 		{
-			name:           "Ex2 Steps",
+			name:           "Ex1 Manhattan",
+			inputA:         "R8,U5,L5,D3",
+			inputB:         "U7,R6,D4,L4",
+			distFunc:       manhattan(),
+			expectDistance: 6,
+		},
+		{
+			name:           "Ex1 Steps",
+			inputA:         "R8,U5,L5,D3",
+			inputB:         "U7,R6,D4,L4",
+			distFunc:       steps(),
+			expectDistance: 30,
+		},
+		{
+			name:           "Ex2 Manhattan",
 			inputA:         "R75,D30,R83,U83,L12,D49,R71,U7,L72",
 			inputB:         "U62,R66,U55,R34,D71,R55,D58,R83",
-			distFunc:       steps(),
-			expectDistance: 610,
+			distFunc:       manhattan(),
+			expectDistance: 159,
 		},
 		// {
-		// 	name:           "Ex3 Manhattan",
-		// 	inputA:         "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
-		// 	inputB:         "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
-		// 	distFunc:       manhattan(),
-		// 	expectDistance: 135,
-		// },
-		// {
-		// 	name:           "Ex3 Steps",
-		// 	inputA:         "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
-		// 	inputB:         "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
+		// 	name:           "Ex2 Steps",
+		// 	inputA:         "R75,D30,R83,U83,L12,D49,R71,U7,L72",
+		// 	inputB:         "U62,R66,U55,R34,D71,R55,D58,R83",
 		// 	distFunc:       steps(),
-		// 	expectDistance: 410,
+		// 	expectDistance: 610,
 		// },
+		{
+			name:           "Ex3 Manhattan",
+			inputA:         "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
+			inputB:         "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
+			distFunc:       manhattan(),
+			expectDistance: 135,
+		},
+		{
+			name:           "Ex3 Steps",
+			inputA:         "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51",
+			inputB:         "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7",
+			distFunc:       steps(),
+			expectDistance: 410,
+		},
 	}
 
 	for _, tt := range tests {
