@@ -1,6 +1,6 @@
 module github.ibm.com/alexmk/adventofcode
 
-go 1.12
+go 1.15
 
 require (
 	github.com/magiconair/properties v1.8.1
