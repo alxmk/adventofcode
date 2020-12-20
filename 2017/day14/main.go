@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.ibm.com/alexmk/adventofcode/day10/knot"
+	"github.com/alxmk/adventofcode/2017/day10/knot"
 )
 
 var visitCount int

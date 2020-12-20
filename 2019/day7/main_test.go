@@ -3,9 +3,9 @@ package main
 import (
 	"testing"
 
+	"github.com/alxmk/adventofcode/2019/day2/intcode"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.ibm.com/alexmk/adventofcode/2019/day2/intcode"
 )
 
 func TestRunAmps(t *testing.T) {

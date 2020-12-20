@@ -1,4 +1,4 @@
-module github.ibm.com/alexmk/adventofcode
+module github.com/alxmk/adventofcode
 
 go 1.15
 
