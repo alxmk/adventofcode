@@ -47,7 +47,6 @@ func findHypoallergenics(candidates map[string]*set.Set, ingredients map[string]
 	}
 	for _, s := range candidates {
 		s.Do(func(i interface{}) {
-
 			delete(inc, i.(string))
 		})
 	}
