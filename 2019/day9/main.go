@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.ibm.com/alexmk/adventofcode/2019/day2/intcode"
+	"github.com/alxmk/adventofcode/2019/day2/intcode"
 )
 
 func main() {

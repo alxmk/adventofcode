@@ -3,8 +3,8 @@ package main
 import (
 	"testing"
 
+	"github.com/alxmk/adventofcode/2017/day10/knot"
 	"github.com/stretchr/testify/require"
-	"github.ibm.com/alexmk/adventofcode/day10/knot"
 )
 
 func TestKnotHash(t *testing.T) {
