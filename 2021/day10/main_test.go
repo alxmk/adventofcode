@@ -61,9 +61,8 @@ func TestChunk(t *testing.T) {
 			expectIncomplete: "}}]])})]",
 		},
 		{
-			name: "Example 2",
-			// input:            "[(()[<>])]({[<{<<[]>>(",
-			input:            "({[<{(",
+			name:             "Example 2",
+			input:            "[(()[<>])]({[<{<<[]>>(",
 			expectRune:       0,
 			expectIncomplete: ")}>]})",
 		},
