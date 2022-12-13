@@ -2,10 +2,10 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"os"
 	"sort"
-	"strconv"
 )
 
 func main() {
@@ -14,8 +14,10 @@ func main() {
 		log.Fatalln("Failed to read input:", err)
 	}
 
-	log.Println("Part one:", partOne(parsePairs(data)))
-	log.Println("Part two:", partTwo(parsePackets(data)))
+	packets := parsePackets(data)
+
+	log.Println("Part one:", partOne(packets))
+	log.Println("Part two:", partTwo(packets))
 }
 
 func parsePackets(data []byte) packets {
@@ -24,168 +26,84 @@ func parsePackets(data []byte) packets {
 		if len(line) == 0 {
 			continue
 		}
-		_, pkt := parse(line)
-		p = append(p, pkt)
+		var this []interface{}
+		json.Unmarshal(line, &this)
+		p = append(p, this)
 	}
 	return p
 }
 
-func parsePairs(data []byte) []pair {
-	var pairs []pair
-	for _, p := range bytes.Split(data, []byte{'\n', '\n'}) {
-		pairs = append(pairs, parsePair(p))
-	}
-	return pairs
-}
-
-func partOne(pairs []pair) int {
+func partOne(pkts packets) int {
 	var sum int
-	for i, p := range pairs {
-		if p.Valid() {
-			sum += i + 1
+	for i := 0; i < len(pkts); i += 2 {
+		if pkts.Less(i, i+1) {
+			sum += (i / 2) + 1
 		}
 	}
 	return sum
 }
 
 func partTwo(pkts packets) int {
-	divX, divY := packet{values: []interface{}{packet{values: []interface{}{2}}}}, packet{values: []interface{}{packet{values: []interface{}{6}}}}
-	pkts = append(pkts, divX, divY)
+	da, db := []interface{}{[]interface{}{2.0}}, []interface{}{[]interface{}{6.0}}
+	pkts = append(pkts, da, db)
 	sort.Slice(pkts, pkts.Less)
 	var x, y int
 	for i, p := range pkts {
-		if p.Equal(divX) {
+		if equal(p, da) {
 			x = i + 1
 		}
-		if p.Equal(divY) {
+		if equal(p, db) {
 			y = i + 1
 		}
 	}
 	return x * y
 }
 
-type pair [2]packet
-
-func parsePair(data []byte) pair {
-	a, b, _ := bytes.Cut(data, []byte{'\n'})
-	_, first := parse(a)
-	_, second := parse(b)
-	return pair{first, second}
-}
-
-type packets []packet
+type packets [][]interface{}
 
 func (p packets) Less(i, j int) bool {
-	return pair{p[i], p[j]}.Valid()
+	less, _ := p.innerLess(i, j)
+	return less
 }
 
-func (p pair) Valid() bool {
-	v, _ := p.innerValid()
-	return v
-}
-
-func (p pair) innerValid() (bool, bool) {
-	if len(p[0].values) == 0 && len(p[1].values) != 0 {
-		return true, true
-	}
-	for i, a := range p[0].values {
-		if i == len(p[1].values) {
+func (p packets) innerLess(i, j int) (bool, bool) {
+	for k, a := range p[i] {
+		if k == len(p[j]) {
 			return false, true
 		}
-		b := p[1].values[i]
+		b := p[j][k]
+		var n, m []interface{}
 		switch t := a.(type) {
-		case int:
+		case float64:
 			switch s := b.(type) {
-			case int:
-				if t > s {
-					return false, true
+			case float64:
+				if t == s {
+					continue
 				}
-				if t < s {
-					return true, true
-				}
-			case packet:
-				valid, done := (pair{packet{values: []interface{}{p[0].values[i]}}, s}).innerValid()
-				if !valid || done {
-					return valid, done
-				}
+				return t < s, true
+			case []interface{}:
+				n, m = []interface{}{p[i][k]}, s
 			}
-		case packet:
+		case []interface{}:
 			switch s := b.(type) {
-			case int:
-				valid, done := (pair{t, packet{values: []interface{}{p[1].values[i]}}}).innerValid()
-				if !valid || done {
-					return valid, done
-				}
-			case packet:
-				valid, done := (pair{t, s}).innerValid()
-				if !valid || done {
-					return valid, done
-				}
+			case float64:
+				n, m = t, []interface{}{p[j][k]}
+			case []interface{}:
+				n, m = t, s
 			}
 		}
+		if less, done := (packets{n, m}).innerLess(0, 1); done {
+			return less, done
+		}
 	}
-	if len(p[1].values) > len(p[0].values) {
+	if len(p[j]) > len(p[i]) {
 		return true, true
 	}
 	return true, false
 }
 
-type packet struct {
-	values []interface{}
-}
-
-func (p packet) Equal(q packet) bool {
-	if len(p.values) != len(q.values) {
-		return false
-	}
-	for i, v := range p.values {
-		switch x := v.(type) {
-		case int:
-			switch y := q.values[i].(type) {
-			case int:
-				if x != y {
-					return false
-				}
-			default:
-				return false
-			}
-		case packet:
-			switch y := q.values[i].(type) {
-			case packet:
-				return x.Equal(y)
-			default:
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func parse(data []byte) (int, packet) {
-	p := packet{values: make([]interface{}, 0)}
-	for i := 1; i < len(data); i++ {
-		switch data[i] {
-		case '[':
-			j, sub := parse(data[i:])
-			i += j
-			p.values = append(p.values, sub)
-		case ']':
-			return i, p
-		case ',':
-			continue
-		default:
-			var done bool
-			var j int
-			for j = i; !done; j++ {
-				switch data[j] {
-				case ',', ']':
-					done = true
-				}
-			}
-			v, _ := strconv.Atoi(string(data[i : j-1]))
-			p.values = append(p.values, v)
-			i = j - 2
-		}
-	}
-	return len(data) - 1, p
+func equal(p, q []interface{}) bool {
+	pp, _ := json.Marshal(p)
+	qq, _ := json.Marshal(q)
+	return string(qq) == string(pp)
 }

@@ -1,82 +1,60 @@
 package main
 
 import (
-	"log"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParse(t *testing.T) {
+func TestParsePackets(t *testing.T) {
 	tests := []struct {
 		name   string
 		input  string
-		expect packet
+		expect packets
 	}{
 		{
 			name:   "Example 1",
 			input:  "[1,1,3,1,1]",
-			expect: packet{values: []interface{}{1, 1, 3, 1, 1}},
+			expect: packets{{1.0, 1.0, 3.0, 1.0, 1.0}},
 		},
 		{
 			name:  "Example 2",
 			input: "[[1],[2,3,4]]",
-			expect: packet{
-				values: []interface{}{
-					packet{
-						values: []interface{}{1},
-					},
-					packet{
-						values: []interface{}{2, 3, 4},
-					},
+			expect: packets{[]interface{}{
+				[]interface{}{
+					1.0,
 				},
+				[]interface{}{
+					2.0, 3.0, 4.0,
+				}},
 			},
 		},
 		{
 			name:  "Example 3",
 			input: "[[10],[2,3,4]]",
-			expect: packet{
-				values: []interface{}{
-					packet{
-						values: []interface{}{10},
-					},
-					packet{
-						values: []interface{}{2, 3, 4},
-					},
-				},
-			},
+			expect: packets{[]interface{}{
+				[]interface{}{10.0},
+				[]interface{}{2.0, 3.0, 4.0},
+			}},
 		},
 		{
 			name:  "Example 4",
 			input: "[[[]],[10,5,4]]",
-			expect: packet{
-				values: []interface{}{
-					packet{
-						values: []interface{}{
-							packet{
-								values: []interface{}{},
-							},
-						},
-					},
-					packet{
-						values: []interface{}{
-							10, 5, 4,
-						},
-					},
-				},
-			},
+			expect: packets{[]interface{}{
+				[]interface{}{[]interface{}{}},
+				[]interface{}{10.0, 5.0, 4.0},
+			}},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, actual := parse([]byte(tt.input))
-			assert.Equal(t, tt.expect, actual)
+			assert.Equal(t, tt.expect, parsePackets([]byte(tt.input)))
 		})
 	}
 }
 
-func TestValid(t *testing.T) {
+func TestLess(t *testing.T) {
 	tests := []struct {
 		name   string
 		input  string
@@ -164,8 +142,7 @@ func TestValid(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			log.Println(tt.name)
-			assert.Equal(t, tt.expect, parsePair([]byte(tt.input)).Valid())
+			assert.Equal(t, tt.expect, parsePackets([]byte(tt.input)).Less(0, 1))
 		})
 	}
 }
@@ -207,7 +184,7 @@ func TestScore(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expect, partOne(parsePairs([]byte(tt.input))))
+			assert.Equal(t, tt.expect, partOne(parsePackets([]byte(tt.input))))
 		})
 	}
 }
