@@ -6,72 +6,195 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestPopulateTree(t *testing.T) {
+func TestStateBuildTime(t *testing.T) {
 	tests := []struct {
-		name  string
-		input string
+		name   string
+		r      resources
+		s      state
+		expect int
 	}{
 		{
-			name:  "Example 1",
-			input: example1,
+			name:   "Example 1",
+			r:      resources{ore: 4},
+			s:      state{robots: resources{ore: 1}},
+			expect: 5,
 		},
 		{
-			name:  "Example 2",
-			input: example2,
+			name:   "Example 2",
+			r:      resources{ore: 2},
+			s:      state{robots: resources{ore: 1}},
+			expect: 3,
+		},
+		{
+			name:   "Example 3",
+			r:      resources{ore: 3, clay: 14},
+			s:      state{robots: resources{ore: 1, clay: 3}, inventory: resources{ore: 1, clay: 6}},
+			expect: 4,
+		},
+		{
+			name:   "Example 4",
+			r:      resources{ore: 3, clay: 14},
+			s:      state{robots: resources{ore: 1, clay: 3}, inventory: resources{ore: 1, clay: 2}},
+			expect: 5,
+		},
+		//2022/12/24 19:46:45 {20 {7 26 6 0} {4 10 2 0}}
+		{
+			name:   "Example 5",
+			r:      resources{ore: 3, clay: 17},
+			s:      state{robots: resources{ore: 4, clay: 10, obsidian: 2}, inventory: resources{ore: 7, clay: 26, obsidian: 6}},
+			expect: 1,
+		},
+		{
+			name:   "Example 6",
+			r:      resources{ore: 3, obsidian: 8},
+			s:      state{robots: resources{ore: 4, clay: 10, obsidian: 2}, inventory: resources{ore: 4, clay: 19, obsidian: 8}},
+			expect: 1,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			parse(tt.input)[0].quality()
-			t.Fail()
+			assert.Equal(t, tt.expect, tt.s.BuildTime(tt.r))
 		})
 	}
 }
 
-var example1 = `Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.`
-var example2 = `Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian.`
-
-func TestMinsToBuild(t *testing.T) {
+func TestSolverSolve(t *testing.T) {
 	tests := []struct {
-		name            string
-		input           string
-		resource        resource
-		state           *state
-		expectBuildable bool
-		expectTime      int
+		name   string
+		s      *solver
+		time   int
+		expect int
 	}{
 		{
-			name:            "Example 1 clay",
-			input:           example1,
-			resource:        clay,
-			state:           &state{robots: rset{ore: 1}},
-			expectBuildable: true,
-			expectTime:      3,
+			name: "Example 1 24",
+			s: &solver{
+				scache: make(map[state]struct{}),
+				bp: blueprint{
+					number:   1,
+					ore:      resources{ore: 4},
+					clay:     resources{ore: 2},
+					obsidian: resources{ore: 3, clay: 14},
+					geode:    resources{ore: 2, obsidian: 7},
+				},
+			},
+			time:   24,
+			expect: 9,
 		},
 		{
-			name:            "Example 1 ore",
-			input:           example1,
-			resource:        ore,
-			state:           &state{robots: rset{ore: 1}},
-			expectBuildable: true,
-			expectTime:      5,
+			name: "Example 2 24",
+			s: &solver{
+				scache: make(map[state]struct{}),
+				bp: blueprint{
+					number:   2,
+					ore:      resources{ore: 2},
+					clay:     resources{ore: 3},
+					obsidian: resources{ore: 3, clay: 8},
+					geode:    resources{ore: 3, obsidian: 12},
+				},
+			},
+			time:   24,
+			expect: 12,
 		},
 		{
-			name:            "Example 1 turn 7",
-			input:           example1,
-			resource:        obsidian,
-			state:           &state{robots: rset{ore: 1, clay: 3}, resources: rset{ore: 1, clay: 6}},
-			expectBuildable: true,
-			expectTime:      4,
+			name: "Example 1 32",
+			s: &solver{
+				scache: make(map[state]struct{}),
+				bp: blueprint{
+					number:   1,
+					ore:      resources{ore: 4},
+					clay:     resources{ore: 2},
+					obsidian: resources{ore: 3, clay: 14},
+					geode:    resources{ore: 2, obsidian: 7},
+				},
+			},
+			time:   32,
+			expect: 56,
+		},
+		{
+			name: "Example 2 32",
+			s: &solver{
+				scache: make(map[state]struct{}),
+				bp: blueprint{
+					number:   2,
+					ore:      resources{ore: 2},
+					clay:     resources{ore: 3},
+					obsidian: resources{ore: 3, clay: 8},
+					geode:    resources{ore: 3, obsidian: 12},
+				},
+			},
+			time:   32,
+			expect: 62,
+		},
+		{
+			name: "Real 2 32",
+			s: &solver{
+				scache: make(map[state]struct{}),
+				bp: blueprint{
+					number:   2,
+					ore:      resources{ore: 3},
+					clay:     resources{ore: 4},
+					obsidian: resources{ore: 3, clay: 17},
+					geode:    resources{ore: 3, obsidian: 8},
+				},
+			},
+			time:   32,
+			expect: 31,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			actualBuildable, actualTime := tt.state.MinsToBuild(tt.resource, parse(tt.input)[0])
-			assert.Equal(t, tt.expectBuildable, actualBuildable)
-			assert.Equal(t, tt.expectTime, actualTime)
+			assert.Equal(t, tt.expect, tt.s.Solve(tt.time))
 		})
+	}
+}
+
+func TestStateLess(t *testing.T) {
+	tests := []struct {
+		name   string
+		r, o   state
+		expect bool
+	}{
+		{
+			name:   "Example 1",
+			r:      state{},
+			o:      state{},
+			expect: true,
+		},
+		{
+			name:   "Example 2",
+			r:      state{t: 1},
+			o:      state{},
+			expect: true,
+		},
+		{
+			name:   "Example 3",
+			r:      state{},
+			o:      state{t: 1},
+			expect: false,
+		},
+		{
+			name:   "Example 4",
+			r:      state{robots: resources{ore: 1}},
+			o:      state{},
+			expect: false,
+		},
+		{
+			name:   "Example 4",
+			r:      state{robots: resources{ore: 1}},
+			o:      state{robots: resources{clay: 1}},
+			expect: false,
+		},
+		{
+			name:   "Example 5",
+			r:      state{robots: resources{ore: 1}},
+			o:      state{inventory: resources{clay: 1}},
+			expect: false,
+		},
+	}
+
+	for _, tt := range tests {
+		assert.Equal(t, tt.expect, tt.r.Less(tt.o))
 	}
 }
