@@ -19,120 +19,112 @@ func main() {
 	log.Println("Part two:", s.PartTwo())
 }
 
-func parseSchematic(input string) schematic {
-	s := schematic{
-		data: make(map[xy]rune),
+type xy struct {
+	x, y int
+}
+
+func (x xy) adjacent() []xy {
+	return []xy{
+		{x.x - 1, x.y},
+		{x.x + 1, x.y},
+		{x.x, x.y - 1},
+		{x.x + 1, x.y - 1},
+		{x.x - 1, x.y - 1},
+		{x.x, x.y + 1},
+		{x.x + 1, x.y + 1},
+		{x.x - 1, x.y + 1},
 	}
-	for y, line := range strings.Split(input, "\n") {
-		s.max.x, s.max.y = len(line)-1, y
-		for x, r := range line {
-			s.data[xy{x, y}] = r
+}
+
+type schematic struct {
+	numbers []number
+	nmap    map[xy]*number
+	cogs    map[xy]struct{}
+}
+
+type number struct {
+	value    int
+	location map[xy]struct{}
+}
+
+func parseSchematic(input string) schematic {
+	s := schematic{cogs: make(map[xy]struct{}), nmap: make(map[xy]*number)}
+	lines := strings.Split(input, "\n")
+	for y, line := range lines {
+		for x := 0; x < len(line); x++ {
+			r := line[x]
+			switch r {
+			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+				var pn []byte
+				if n, valid := func() (*number, bool) {
+					n := &number{location: make(map[xy]struct{})}
+					defer func() {
+						n.value, _ = strconv.Atoi(string(pn))
+					}()
+					var valid bool
+					for i := x; i < len(line); i++ {
+						ri := line[i]
+						switch ri {
+						case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
+							c := xy{i, y}
+							pn = append(pn, ri)
+							n.location[c] = struct{}{}
+							valid = valid || func() bool {
+								for _, c := range c.adjacent() {
+									switch lines[min(max(0, c.y), len(lines)-1)][min(max(0, c.x), len(line)-1)] {
+									case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.':
+										continue
+									default:
+										return true
+									}
+								}
+								return false
+							}()
+						default:
+							return n, valid
+						}
+					}
+					return n, valid
+				}(); valid {
+					s.numbers = append(s.numbers, *n)
+					for c := range n.location {
+						s.nmap[c] = n
+					}
+				}
+				x += len(pn) - 1
+			case '*':
+				s.cogs[xy{x, y}] = struct{}{}
+			}
 		}
 	}
 	return s
 }
 
-type xy struct {
-	x, y int
-}
-
-type schematic struct {
-	data map[xy]rune
-	max  xy
-}
-
 func (s schematic) PartOne() int {
 	var sum int
-	for y := 0; y <= s.max.y; y++ {
-	lx:
-		for x := 0; x <= s.max.x; x++ {
-			r := s.data[xy{x, y}]
-			switch r {
-			case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-				pn := []rune{r}
-			li:
-				for i := x + 1; i <= s.max.x; i++ {
-					ri := s.data[xy{i, y}]
-					switch ri {
-					case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-						pn = append(pn, ri)
-					default:
-						break li
-					}
-				}
-				for j := y - 1; j <= y+1 && j <= s.max.y; j++ {
-					for i := x - 1; i <= x+len(pn) && i <= s.max.x; i++ {
-						switch s.data[xy{i, j}] {
-						case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', 0:
-						default:
-							v, _ := strconv.Atoi(string(pn))
-							sum += v
-							x += len(pn) - 1
-							continue lx
-						}
-					}
-				}
-				x += len(pn) - 1
-			}
-		}
+	for _, n := range s.numbers {
+		sum += n.value
 	}
 	return sum
 }
 
-func (s schematic) PartTwo() int64 {
-	var sum int64
-	for y := 0; y <= s.max.y; y++ {
-		for x := 0; x <= s.max.x; x++ {
-			r := s.data[xy{x, y}]
-			switch r {
-			case '*':
-			default:
-				continue
+func (s schematic) PartTwo() int {
+	var sum int
+	for c := range s.cogs {
+		adj := make(map[*number]struct{})
+		for _, a := range c.adjacent() {
+			if n, ok := s.nmap[a]; ok {
+				adj[n] = struct{}{}
 			}
-			numbers := make(map[xy]rune)
-			for j := y - 1; j <= y+1; j++ {
-				for i := x - 1; i <= x+1; i++ {
-					rij := s.data[xy{i, j}]
-					switch rij {
-					case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-						numbers[xy{i, j}] = rij
-					}
-				}
-			}
-			if len(numbers) < 2 {
-				continue
-			}
-			var values []int64
-			for l := range numbers {
-				var pn []rune
-				var xys []xy
-			lx:
-				for i := l.x - 2; i <= l.x+2; i++ {
-					rij := s.data[xy{i, l.y}]
-					switch rij {
-					case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
-						pn = append(pn, rij)
-						xys = append(xys, xy{i, l.y})
-					default:
-						if i < l.x {
-							pn = []rune{}
-							xys = []xy{}
-							continue
-						}
-						break lx
-					}
-				}
-				for _, t := range xys {
-					delete(numbers, t)
-				}
-				v, _ := strconv.ParseInt(string(pn), 10, 64)
-				values = append(values, v)
-			}
-			if len(values) != 2 {
-				continue
-			}
-			sum += values[0] * values[1]
 		}
+		if len(adj) != 2 {
+			continue
+		}
+		product := 1
+		for n := range adj {
+			product *= n.value
+		}
+		sum += product
 	}
 	return sum
 }

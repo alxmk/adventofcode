@@ -39,7 +39,7 @@ func TestSchematic_PartTwo(t *testing.T) {
 	tests := []struct {
 		name   string
 		input  string
-		expect int64
+		expect int
 	}{
 		{
 			name: "Example 1",
