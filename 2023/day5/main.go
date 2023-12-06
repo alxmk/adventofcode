@@ -101,14 +101,14 @@ type mapping struct {
 }
 
 func (m mapping) Corresponding(input int) (int, bool) {
-	if input >= m.src && input <= m.src+m.rng {
+	if input >= m.src && input < m.src+m.rng {
 		return m.dst + (input - m.src), true
 	}
 	return 0, false
 }
 
 func (m mapping) Reverse(input int) (int, bool) {
-	if input >= m.dst && input <= m.dst+m.rng {
+	if input >= m.dst && input < m.dst+m.rng {
 		return m.src + (input - m.dst), true
 	}
 	return 0, false
