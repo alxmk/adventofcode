@@ -17,7 +17,7 @@ func main() {
 	h := parseHands(string(data))
 
 	log.Println("Part one:", solve(h, false))
-	log.Println("Part two:", solve(jokers(h), true))
+	log.Println("Part two:", solve(h, true))
 }
 
 func solve(hands []hand, joker bool) int {
@@ -34,43 +34,49 @@ func solve(hands []hand, joker bool) int {
 func parseHands(input string) []hand {
 	var hands []hand
 	for _, line := range strings.Split(input, "\n") {
-		h := hand{cmap: make(map[rune]int)}
+		var h hand
 		fmt.Sscanf(line, "%s %d", &h.cards, &h.bid)
-		for _, r := range h.cards {
-			h.cmap[r]++
-		}
+		h.jackPower, h.jokerPower = calculatePowers(h.cards)
 		hands = append(hands, h)
 	}
 	return hands
 }
 
-func jokers(hands []hand) []hand {
-	var j []hand
-	for _, h := range hands {
-		j = append(j, h.Joker())
-	}
-	return j
-}
-
 type hand struct {
-	cards string
-	cmap  map[rune]int
-	bid   int
+	cards      string
+	jackPower  int
+	jokerPower int
+	bid        int
 }
 
-func (h hand) Joker() hand {
-	nj, ok := h.cmap['J']
-	if !ok {
-		return h
+func (h hand) Power(jokers bool) int {
+	if jokers {
+		return h.jokerPower
 	}
-	delete(h.cmap, 'J')
+	return h.jackPower
+}
+
+func calculatePowers(hand string) (int, int) {
+	hmap := make(map[rune]int)
+	for _, r := range hand {
+		hmap[r]++
+	}
+	return handPower(hmap), handPower(convertJokers(hmap))
+}
+
+func convertJokers(hmap map[rune]int) map[rune]int {
+	nj, ok := hmap['J']
+	if !ok {
+		return hmap
+	}
+	delete(hmap, 'J')
 	var pairs, singles []rune
-	for c, n := range h.cmap {
-		switch n {
+	for c, nc := range hmap {
+		switch nc {
 		case 4, 3:
 			// This is always the best option to bump
-			h.cmap[c] += nj
-			return h
+			hmap[c] += nj
+			return hmap
 		case 2:
 			pairs = append(pairs, c)
 		case 1:
@@ -82,118 +88,32 @@ func (h hand) Joker() hand {
 		sort.Slice(pairs, func(i, j int) bool {
 			return power(pairs[i], false) < power(pairs[j], false)
 		})
-		h.cmap[pairs[0]] += nj
-		return h
+		hmap[pairs[0]] += nj
+		return hmap
 	}
 	if len(singles) != 0 {
 		// Find the highest single and bump it
 		sort.Slice(singles, func(i, j int) bool {
 			return power(singles[i], false) < power(singles[j], false)
 		})
-		h.cmap[singles[0]] += nj
-		return h
+		hmap[singles[0]] += nj
+		return hmap
 	}
 	// They were all Jokers
-	h.cmap['A'] += nj
-	return h
+	hmap['A'] += nj
+	return hmap
 }
 
 func (h hand) Beats(j hand, jokers bool) bool {
-	lh, lj := len(h.cmap), len(j.cmap)
-	if lh < lj {
-		return true
-	}
-	if lh > lj {
-		return false
-	}
-	switch lh {
-	case 1, 4, 5:
-		// Five of a kind || One Pair || High card
+	ph, pj := h.Power(jokers), j.Power(jokers)
+	if ph == pj {
 		return tiebreak(h.cards, j.cards, jokers)
-	case 2:
-		// Four of a kind or full house
-		for _, l := range h.cmap {
-			switch l {
-			case 1, 4:
-				// Four of a kind
-				for _, k := range j.cmap {
-					switch k {
-					case 1, 4:
-						return tiebreak(h.cards, j.cards, jokers)
-					default:
-						// Four of a kind beats full house
-						return true
-					}
-				}
-			case 2, 3:
-				// Full house
-				for _, k := range j.cmap {
-					switch k {
-					case 2, 3:
-						return tiebreak(h.cards, j.cards, jokers)
-					default:
-						// Four of a kind beats full house
-						return false
-					}
-				}
-			}
-		}
-	case 3:
-		// Three of a kind or two pair
-		// Four of a kind or full house
-		for _, l := range h.cmap {
-			switch l {
-			case 3:
-				// Three of a kind
-				for _, k := range j.cmap {
-					switch k {
-					case 3:
-						return tiebreak(h.cards, j.cards, jokers)
-					case 2:
-						// Three of a kind beats two pair
-						return true
-					case 1:
-						// Could be either
-						continue
-					}
-				}
-			case 2:
-				// Two pair
-				for _, k := range j.cmap {
-					switch k {
-					case 2:
-						return tiebreak(h.cards, j.cards, jokers)
-					case 3:
-						// Three of a kind beats two pair
-						return false
-					case 1:
-						// Could be either
-						continue
-					}
-				}
-			case 1:
-				// Could be either
-				continue
-			}
-		}
 	}
-	panic(fmt.Sprintf("%s vs %s is a draw", h.cards, j.cards))
+	return ph > pj
 }
 
 var cardPower = map[rune]int{
-	'2': 0,
-	'3': 1,
-	'4': 2,
-	'5': 3,
-	'6': 4,
-	'7': 5,
-	'8': 6,
-	'9': 7,
-	'T': 8,
-	'J': 9,
-	'Q': 10,
-	'K': 11,
-	'A': 12,
+	'2': 0, '3': 1, '4': 2, '5': 3, '6': 4, '7': 5, '8': 6, '9': 7, 'T': 8, 'J': 9, 'Q': 10, 'K': 11, 'A': 12,
 }
 
 func power(c rune, jokers bool) int {
@@ -206,12 +126,38 @@ func power(c rune, jokers bool) int {
 func tiebreak(a, b string, jokers bool) bool {
 	for i, ch := range a {
 		ph, pj := power(ch, jokers), power(rune(b[i]), jokers)
-		if ph > pj {
-			return true
+		if ph == pj {
+			continue
 		}
-		if ph < pj {
-			return false
-		}
+		return ph > pj
 	}
 	panic(fmt.Sprintf("%s vs %s is a draw", a, b))
+}
+
+func handPower(h map[rune]int) int {
+	switch len(h) {
+	case 1: // Five of a kind
+		return 6
+	case 2: // Four of a kind or full house
+		for _, l := range h {
+			switch l {
+			case 1, 4: // Four of a kind
+				return 5
+			}
+			return 4 // Full house
+		}
+	case 3: // Three of a kind or two pair
+		for _, l := range h {
+			switch l {
+			case 3: // Three of a kind
+				return 3
+			}
+		}
+		return 2 // Two pair
+	case 4: // Pair
+		return 1
+	case 5: // High card
+		return 0
+	}
+	panic("unparseable hand")
 }

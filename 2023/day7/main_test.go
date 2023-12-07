@@ -37,11 +37,7 @@ QQQJA 483`,
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := parseHands(tt.input)
-			if tt.jokers {
-				h = jokers(h)
-			}
-			assert.Equal(t, tt.expect, solve(h, tt.jokers))
+			assert.Equal(t, tt.expect, solve(parseHands(tt.input), tt.jokers))
 		})
 	}
 
