@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = day2
+build_property.ProjectDir = /Users/alexmk/go/src/github.com/alxmk/adventofcode/2018/csharp/day2/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
