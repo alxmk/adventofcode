@@ -1,22 +1,17 @@
-numchars = range(ord('1'), ord('9')+1)
 numstrs = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 
-def val(c):
-    return c - ord('0')
-
 def p1(l):
-    digits = list(val(c) for c in l.encode("utf-8") if c in numchars)
-    # digits = list(map(lambda c: val(c), filter(lambda c: c in numchars, l.encode("utf-8"))))
+    digits = [int(c) for _, c in enumerate(l) if c.isdigit()]
     return (digits[0] * 10) + digits[-1]
 
 def p2(l):
     digits = []
-    for i, c in enumerate(l.encode("utf-8")):
+    for i, c in enumerate(l):
         for j, n in enumerate(numstrs):
             if l[i:].startswith(n):
                 digits.append(j+1)
-        if c in numchars:
-            digits.append(val(c))
+        if c.isdigit():
+            digits.append(int(c))
     return (digits[0] * 10) + digits[-1]
 
 with open("2023/day1/input.txt", 'r') as f:
