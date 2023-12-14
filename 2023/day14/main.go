@@ -17,16 +17,13 @@ func main() {
 }
 
 func partTwo(p *platform, spins int) int {
-	cache := make(map[string]int)
-	var repeat bool
+	cache, history := make(map[string]int), make(map[int]string)
 	for i := 0; i < spins; i++ {
-		p.Spin()
-		s := p.String()
-		if j, ok := cache[s]; ok && !repeat {
-			i = spins - j
-			repeat = true
+		s := p.Spin().String()
+		if j, ok := cache[s]; ok {
+			return parsePlatform(history[j+((spins-j)%(i-j))]).Load()
 		}
-		cache[s] = i
+		cache[s], history[i] = i, s
 	}
 	return p.Load()
 }
