@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/magiconair/properties/assert"
 	"log"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func Test_fuelRecurse(t *testing.T) {
