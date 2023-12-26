@@ -17,10 +17,24 @@ func main() {
 }
 
 func solve(g graph) int {
-	c, v := kargers(g)
-	for ; c != 3; c, v = kargers(g) {
+	for c, v := kargers(g); ; c, v = kargers(g) {
+		if c == 3 {
+			return v
+		}
 	}
-	return v
+}
+
+func findIndexes(subsets []map[string]struct{}, e edge) (int, int) {
+	var ss, sd int
+	for i, sub := range subsets {
+		if _, ok := sub[e.s]; ok {
+			ss = i
+		}
+		if _, ok := sub[e.d]; ok {
+			sd = i
+		}
+	}
+	return ss, sd
 }
 
 func kargers(g graph) (int, int) {
@@ -30,16 +44,7 @@ func kargers(g graph) (int, int) {
 	}
 	v := len(g.vertices)
 	for v > 2 {
-		e := g.edges[rand.Intn(len(g.edges))]
-		var ss, sd int
-		for i, sub := range subsets {
-			if _, ok := sub[e.s]; ok {
-				ss = i
-			}
-			if _, ok := sub[e.d]; ok {
-				sd = i
-			}
-		}
+		ss, sd := findIndexes(subsets, g.edges[rand.Intn(len(g.edges))])
 		if ss == sd {
 			continue
 		}
@@ -51,15 +56,7 @@ func kargers(g graph) (int, int) {
 	}
 	var cuts int
 	for _, e := range g.edges {
-		var ss, sd int
-		for i, sub := range subsets {
-			if _, ok := sub[e.s]; ok {
-				ss = i
-			}
-			if _, ok := sub[e.d]; ok {
-				sd = i
-			}
-		}
+		ss, sd := findIndexes(subsets, e)
 		if ss != sd {
 			cuts++
 		}
